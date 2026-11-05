@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+.pytest_cache/
+
+# generated - large or rebuilt by the scripts
+data/
+runs/
+results/
+examples/data/

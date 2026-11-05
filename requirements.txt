@@ -1,0 +1,7 @@
+# The versions the paper's results were computed with (Python 3.11, Windows, CPU only).
+# Install the CPU builds of torch and DGL explicitly:
+#   pip install torch==2.3.0 --index-url https://download.pytorch.org/whl/cpu
+#   pip install dgl==2.2.1 -f https://data.dgl.ai/wheels/torch-2.3/repo.html
+#   pip install -r requirements.txt
+numpy==1.26.4
+scipy==1.17.1

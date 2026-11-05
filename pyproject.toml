@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linkspan-modal-gnn"
+version = "1.0.0"
+description = "Graph neural network predicting signed mode shapes and natural frequencies of ferry linkspan decks"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Ba Tung Le", email = "batung.le@ntnu.no" }]
+requires-python = ">=3.10"
+dependencies = ["numpy", "scipy", "torch", "dgl"]
+
+[project.urls]
+Repository = "https://github.com/lbtung96/linkspan-modal-gnn-Public"
+
+[tool.setuptools]
+packages = ["linkspan_gnn"]
+
+[tool.setuptools.package-data]
+linkspan_gnn = ["templates/*.npz"]

@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper below."
+title: "linkspan-modal-gnn: graph neural network for the modal properties of ferry linkspans"
+version: 1.0.0
+license: MIT
+authors:
+  - family-names: "Le"
+    given-names: "Ba Tung"
+    email: "batung.le@ntnu.no"
+    affiliation: "Smart Infrastructure Group, Department of Ocean Operations and Civil Engineering, Norwegian University of Science and Technology (NTNU), Ålesund, Norway"
+repository-code: "https://github.com/lbtung96/linkspan-modal-gnn-Public"
+preferred-citation:
+  type: article
+  title: "Automated operational modal analysis of Norwegian linkspans using graph neural networks"
+  authors:
+    - family-names: "Le"
+      given-names: "Ba Tung"
+      affiliation: "Smart Infrastructure Group, Department of Ocean Operations and Civil Engineering, Norwegian University of Science and Technology (NTNU), Ålesund, Norway"
+  year: 2026
+  status: in-preparation
+  # once published: replace "status" by  journal: "...", volume, pages, doi: "10.xxxx/..."
