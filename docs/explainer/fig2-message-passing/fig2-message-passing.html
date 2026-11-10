@@ -83,8 +83,9 @@ body.iso{background:var(--page);color:var(--text);font:14px/1.55 system-ui,-appl
 .key[data-m="lo"] svg path{stroke:var(--lo)}
 .key b{color:var(--text);font-weight:500;font-family:var(--mono);font-size:12px}
 .caption{color:var(--text)}
+.hat{position:relative;display:inline-block}.hat::after{content:"^";position:absolute;left:.18em;top:-.62em;font-size:.85em}
 .caption code,.key code{font-family:var(--mono);font-size:12px}
-@media (max-width:560px){.plate{padding:46px 6px 74px;overflow:hidden}.plate .iso-svg{width:118%;margin:0 -9%}.corner[data-c="readout"]{bottom:16px;max-width:calc(100% - 40px);white-space:normal}.corner[data-c="hint"]{bottom:48px}}
+@media (max-width:560px){.plate{padding:46px 6px 74px;overflow:hidden}.plate .iso-svg{width:124%;margin:0 -12%}.corner[data-c="readout"]{bottom:16px;max-width:calc(100% - 40px);white-space:normal}.corner[data-c="hint"]{bottom:48px}}
 </style></head>
 <body class="iso" data-theme="dark">
 <div class="wrap">
@@ -99,8 +100,8 @@ body.iso{background:var(--page);color:var(--text);font:14px/1.55 system-ui,-appl
 </div>
 <div class="controls"><span class="grp">stage <button data-stage="0" aria-pressed="true">encode</button><button data-stage="1" aria-pressed="false">l = 1</button><button data-stage="2" aria-pressed="false">l = 2</button><button data-stage="3" aria-pressed="false">l = 3</button><button data-stage="4" aria-pressed="false">decode</button></span><span class="grp">mode <button data-mode="0" aria-pressed="true">B1</button><button data-mode="1" aria-pressed="false">T1</button><button data-mode="2" aria-pressed="false">B2</button><button data-mode="3" aria-pressed="false">T2</button></span><span class="grp">head <button data-head="0" aria-pressed="true">1</button><button data-head="1" aria-pressed="false">2</button><button data-head="2" aria-pressed="false">3</button><button data-head="3" aria-pressed="false">4</button></span></div>
 <figcaption class="legend">
-<div class="keys"><div class="key" data-m="lit"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>receiver i</b> — the one lit station; hover or click any node to move it</span></div><div class="key" data-m="hi"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>H(v)</b>, N × D<sub>v</sub> — the 4 × 8 pin block on a station: its 32 hidden values (4 heads × 8)</span></div><div class="key" data-m="hi"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>twin rails</b> on every member — the two directed edges j→i and i→j (E = 222 for 111 members)</span></div><div class="key" data-m="lit"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>valve</b> on each in-channel of i — lever angle = α<sub>ij</sub>; per head they sum to 1 (softmax)</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>ψ</b> — a pulse: α<sub>ij</sub>(z<sub>j</sub> + f<sub>ij</sub>), the neighbour's state plus the edge's coherency</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>⊕ aggregation</b> — the collector under i's block: the sum of the arriving messages</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>φ</b> — the pins re-level: + W<sub>res</sub>h<sub>i</sub> + b, Linear, ELU, + h<sub>i</sub>, LayerNorm</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>S(v), S(e)</b> — screens on the left console: the node's PSD (M = 400 bins) and an in-edge's coherency (d<sub>e</sub> = 800)</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>knob</b> — the stage: encode, l = 1, 2, 3 (L = 3), decode</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>F̂</b>, 1 × k — four dials on the right console: predicted B1, T1, B2, T2 in Hz (0–12 Hz scale)</span></div><div class="key" data-m="lo"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>mean</b> — manifold under the girders: every node's h, averaged, feeds the frequency head</span></div><div class="key" data-m="hi"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>Φ̂</b>, N × k — the deck itself deflects into the predicted mode shape</span></div></div>
-<div class="caption">The graph is the deck: its 70 nodes are the girder nodes of the FE model (rigid-link slaves collapsed onto their master), its 111 members are cross beams, girders, diagonals, the bottom and front beams and the balcony arm, each one a pair of directed edges. <b>Encode</b>: each node's Welch PSD S(v) (400 bins, 0–38.96 Hz) passes an MLP 400→32→32 into H(v); each directed edge's complex coherency S(e) (Re and Im of 400 bins) passes an MLP 800→32→32 into H(e), once — the same H(e) is set into the rails and valves of all three layers. <b>Message passing</b> (EdgeGATConv, 4 heads × 8): z = W h, f<sub>ij</sub> = W<sub>e</sub> e<sub>ij</sub>, score s<sub>ij</sub> = LeakyReLU(a<sub>l</sub>·z<sub>j</sub> + a<sub>r</sub>·z<sub>i</sub> + a<sub>e</sub>·f<sub>ij</sub>), α<sub>ij</sub> = softmax of s over the in-edges of i. The message ψ = α<sub>ij</sub>(z<sub>j</sub> + f<sub>ij</sub>) depends on h<sub>i</sub>, h<sub>j</sub> and e<sub>ij</sub>; the aggregation ⊕ is their sum; φ adds the residual W<sub>res</sub>h<sub>i</sub> + bias, then Linear 32→32, ELU, + h<sub>i</sub> and LayerNorm. Each layer lets i hear one hop further (lit pucks). <b>Decode</b>: the node decoder (MLP 32→32→4) gives the signed mode shape Φ̂ at every node; the mean of h over all nodes feeds the frequency head (MLP 32→32→4) and the training mean and std turn it into Hz. Every number shown is the pretrained network (55,912 parameters, N = 2,000 training decks) run on this deck by <code>data/extract.py</code>: attention α, pin values and predictions are the network's own. Test set of 500 decks: mean MAC 0.933, frequency MAE 0.219 Hz.</div>
+<div class="keys"><div class="key" data-m="lit"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>receiver i</b> — the one lit station; hover or click any node to move it</span></div><div class="key" data-m="hi"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>H(v)</b>, N × D<sub>v</sub> — the 4 × 8 pin block on a station: its 32 hidden values (4 heads × 8)</span></div><div class="key" data-m="hi"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>twin rails</b> on every member — the two directed edges j→i and i→j (E = 222 for 111 members)</span></div><div class="key" data-m="lit"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>valve</b> on each in-channel of i — lever angle = α<sub>ij</sub>; per head they sum to 1 (softmax)</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>ψ</b> — a pulse: α<sub>ij</sub>(z<sub>j</sub> + f<sub>ij</sub>), the neighbour's state plus the edge's coherency</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>⊕ aggregation</b> — the collector under i's block: the sum of the arriving messages</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>φ</b> — the pins re-level: + W<sub>res</sub>h<sub>i</sub> + b, Linear, ELU, + h<sub>i</sub>, LayerNorm</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>S(v), S(e)</b> — screens on the left console: the node's PSD (M = 400 bins) and an in-edge's coherency (d<sub>e</sub> = 800)</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>knob</b> — the stage: encode, l = 1, 2, 3 (L = 3), decode</span></div><div class="key" data-m="mid"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b><span class='hat'>F</span></b>, 1 × k — four dials on the right console: predicted B1, T1, B2, T2 in Hz (0–12 Hz scale)</span></div><div class="key" data-m="lo"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b>mean</b> — manifold under the girders: every node's h, averaged, feeds the frequency head</span></div><div class="key" data-m="hi"><svg viewBox="0 0 16 10"><path d="M1 5h14"/></svg><span><b><span class='hat'>Φ</span></b>, N × k — the deck itself deflects into the predicted mode shape</span></div></div>
+<div class="caption">The graph is the deck: its 70 nodes are the girder nodes of the FE model (rigid-link slaves collapsed onto their master), its 111 members are cross beams, girders, diagonals, the bottom and front beams and the balcony arm, each one a pair of directed edges. <b>Encode</b>: each node's Welch PSD S(v) (400 bins, 0–38.96 Hz) passes an MLP 400→32→32 into H(v); each directed edge's complex coherency S(e) (Re and Im of 400 bins) passes an MLP 800→32→32 into H(e), once — the same H(e) is set into the rails and valves of all three layers. <b>Message passing</b> (EdgeGATConv, 4 heads × 8): z = W h, f<sub>ij</sub> = W<sub>e</sub> e<sub>ij</sub>, score s<sub>ij</sub> = LeakyReLU(a<sub>l</sub>·z<sub>j</sub> + a<sub>r</sub>·z<sub>i</sub> + a<sub>e</sub>·f<sub>ij</sub>), α<sub>ij</sub> = softmax of s over the in-edges of i. The message ψ = α<sub>ij</sub>(z<sub>j</sub> + f<sub>ij</sub>) depends on h<sub>i</sub>, h<sub>j</sub> and e<sub>ij</sub>; the aggregation ⊕ is their sum; φ adds the residual W<sub>res</sub>h<sub>i</sub> + bias, then Linear 32→32, ELU, + h<sub>i</sub> and LayerNorm. Each layer lets i hear one hop further (lit pucks). <b>Decode</b>: the node decoder (MLP 32→32→4) gives the signed mode shape <span class='hat'>Φ</span> at every node; the mean of h over all nodes feeds the frequency head (MLP 32→32→4) and the training mean and std turn it into Hz. Every number shown is the pretrained network (55,912 parameters, N = 2,000 training decks) run on this deck by <code>data/extract.py</code>: attention α, pin values and predictions are the network's own. Test set of 500 decks: mean MAC 0.933, frequency MAE 0.219 Hz.</div>
 </figcaption>
 </figure>
 </div>
@@ -461,7 +462,7 @@ const W = 760, H = 430;
 (() => {
 const M = deckModel(D);
 const C = camera(30, 32);
-const ZR = ZD + 46, ZN = ZD + 30;              // raised receiver block, neighbour blocks
+const ZR = ZD + 52, ZN = ZD + 28;              // raised receiver block, neighbour blocks
 fit(C, [...benchCorners(0), [0, 96.7, ZR + 14], [357, 96.7, ZR + 14], [-26, -88, -16], [386, -88, -16]], W, H, 12);
 
 const svg = document.querySelector(".iso-svg");
@@ -626,8 +627,8 @@ function deckLayer(dz) {
   }
   if (st <= 3) {
     // posts: receiver up to its collector, neighbours up to their blocks (layers only)
-    const posts = [[i0, ZR - 3.5]];
-    if (st >= 1) for (const j of nb) posts.push([j, ZN]);
+    const posts = [[i0, ZR - 9]];
+    if (st >= 1) for (const j of nb) posts.push([j, zN(j)]);
     for (const [j, zTop] of posts) {
       const [x, y] = M.nodes[j], z0 = nodeTop(M, j) + 1.4 + dz[j];
       extra.push({ at: [x, y, z0], bias: 14, svg: cyl(C, x, y, 0.75, z0, zTop - z0, { tone: j === i0 ? "lit" : "mid", lit: j === i0, n: 14 }) });
@@ -637,22 +638,28 @@ function deckLayer(dz) {
 }
 
 // ---------------------------------------------------------------- pin blocks
+// neighbours of the receiver stand at two levels, alternating along x, so close nodes never collide
+function zN(j) {
+  const nb = [...new Set(M.nbr[S.recv])].sort((p, q) => M.nodes[p][0] - M.nodes[q][0] || M.nodes[p][1] - M.nodes[q][1]);
+  return ZN + (nb.indexOf(j) % 2) * 9;
+}
 function pinBlock(cx, cy, z, vals, own) {
   let s = "";
-  const plan = rrect(cx - 7, cy - 12, 14, 24, 1.2);
+  const plan = rrect(cx - 5.4, cy - 10.2, 10.8, 20.4, 1.1);
   s += prism(C, plan, z, 2.5, { tone: own ? "lit" : "mid", lit: own });
-  s += `<path class="iso-line" data-tone="faint" d="${poly2d(rrect(cx - 6, cy - 11, 12, 22, 0.8).map((p) => pr(C, [p[0], p[1], z + 2.5])))}"/>`;
+  s += `<path class="iso-line" data-tone="faint" d="${poly2d(rrect(cx - 4.5, cy - 9.3, 9, 18.6, 0.7).map((p) => pr(C, [p[0], p[1], z + 2.5])))}"/>`;
   const pins = [];
   for (let h = 0; h < 4; h++) for (let k = 0; k < 8; k++) {
-    const px = cx - 3.9 + h * 2.6, py = cy - 8.75 + k * 2.5, v = vals ? vals[h * 8 + k] : 0;
+    const px = cx - 3.3 + h * 2.2, py = cy - 7.7 + k * 2.2, v = vals ? vals[h * 8 + k] : 0;
     const hp = Math.max(0.35, Math.min(11, 4.5 + 1.5 * v));
     const tone = own ? (h === S.head ? "lit" : "hi") : (h === S.head ? "hi" : "mid");
-    pins.push({ at: [px, py, z], svg: cyl(C, px, py, 0.72, z + 2.5, hp, { tone, lit: own && h === S.head, n: 12 }) });
+    pins.push({ at: [px, py, z], svg: cyl(C, px, py, 0.66, z + 2.5, hp, { tone, lit: own && h === S.head, n: 12 }) });
   }
   return s + paint(C, pins);
 }
 function collector(cx, cy) {
-  return cyl(C, cx, cy, 3.2, ZR - 3.5, 3.5, { tone: "hi", n: 28, inner: `<path class="iso-line" data-tone="faint" d="${ringPath(C, cx, cy, 1.6, ZR, 20)}"/>` });
+  return cyl(C, cx, cy, 3.6, ZR - 9, 3.4, { tone: "hi", n: 28, inner: `<path class="iso-line" data-tone="faint" d="${ringPath(C, cx, cy, 2.2, ZR - 5.6, 24)}"/>` }) +
+    cyl(C, cx, cy, 1.4, ZR - 5.6, 5.6, { tone: "hi", n: 16 });
 }
 function blocksSvg() {
   const st = S.stage, i0 = S.recv;
@@ -661,7 +668,7 @@ function blocksSvg() {
   const hRecv = S.pinsFrom && S.pinsTo ? S.pinsTo.map((v, k) => S.pinsFrom[k] + (v - S.pinsFrom[k]) * ease(S.pinsT)) : D.h[Math.max(0, st)][i0];
   if (st >= 1) for (const j of new Set(M.nbr[i0])) {
     const [x, y] = M.nodes[j];
-    items.push({ at: [x, y, ZN], svg: pinBlock(x, y, ZN, D.h[st - 1][j], false) });
+    items.push({ at: [x, y, zN(j)], svg: pinBlock(x, y, zN(j), D.h[st - 1][j], false) });
   }
   const [x, y] = M.nodes[i0];
   items.push({ at: [x, y, ZR + 40], svg: collector(x, y) + pinBlock(x, y, ZR, hRecv, true) });
@@ -669,6 +676,11 @@ function blocksSvg() {
 }
 const ease = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 
+// the in-edge whose coherency the S(e) screen shows: the one with the most structure (largest spread of Re)
+function shownEdge(i) {
+  const spread = (c) => { const r = D.coh.re[c], m = r.reduce((a, b) => a + b, 0) / r.length; return r.reduce((a, b) => a + (b - m) ** 2, 0); };
+  return inEdges[i].reduce((best, c) => (spread(c) > spread(best) ? c : best), inEdges[i][0]);
+}
 // ---------------------------------------------------------------- front: traces, needles, knob pointer
 function frontSvg() {
   let s = "";
@@ -676,7 +688,7 @@ function frontSvg() {
   const n = psd.length;
   const svPts = psd.map((v, k) => onFace(SV.x0 + (k / (n - 1)) * (SV.x1 - SV.x0), SV.z0 + 0.6 + v * (SV.z1 - SV.z0 - 1.6)));
   s += `<path class="trace" d="M${svPts.map(pt).join("L")}"/>`;
-  const c = inEdges[S.recv][0];
+  const c = shownEdge(S.recv);
   const re = D.coh.re[c], im = D.coh.im[c], m = re.length, mid = (SE.z0 + SE.z1) / 2, amp = (SE.z1 - SE.z0) / 2 - 0.8;
   s += `<path class="trace2" d="M${im.map((v, k) => pt(onFace(SE.x0 + (k / (m - 1)) * (SE.x1 - SE.x0), mid + v * amp))).join("L")}"/>`;
   s += `<path class="trace" d="M${re.map((v, k) => pt(onFace(SE.x0 + (k / (m - 1)) * (SE.x1 - SE.x0), mid + v * amp))).join("L")}"/>`;
@@ -707,7 +719,7 @@ function pulsePaths() {
       const grp = M.members[memberOf.get(i0 + "," + j)].group;
       const off = grp === "cross" || grp === "diagonal" || grp === "edge" ? 0.55 : 0.9, rx = uy * off, ry = -ux * off;
       const zj = nodeTop(M, j), zi = nodeTop(M, i0);
-      const pts = [[xj, yj, ZN], [xj, yj, zj + 1.6], [xj + rx + ux * 2.5, yj + ry + uy * 2.5, zj + 0.4], [xi + rx - ux * 2.5, yi + ry - uy * 2.5, zi + 0.4], [xi, yi, zi + 1.6], [xi, yi, ZR - 3.5]];
+      const pts = [[xj, yj, zN(j)], [xj, yj, zj + 1.6], [xj + rx + ux * 2.5, yj + ry + uy * 2.5, zj + 0.4], [xi + rx - ux * 2.5, yi + ry - uy * 2.5, zi + 0.4], [xi, yi, zi + 1.6], [xi, yi, ZR - 7]];
       paths.push({ pts, r: 0.9 + 2.6 * D.alpha[st - 1][S.head][c] });
     }
   } else if (st === 4) {
@@ -751,7 +763,7 @@ function drawPulses() {
 const f2 = (v) => v.toFixed(2), f3 = (v) => v.toFixed(3);
 function readoutText() {
   const st = S.stage, i0 = S.recv, k = inEdges[i0].length;
-  if (st === 0) return `encode · node ${i0} · S(v) 400 → H(v) 32 · ${k} in-edges S(e) 800 → H(e) 32`;
+  if (st === 0) { const c = shownEdge(i0); return `encode · node ${i0} · S(v) 400 → H(v) 32 · S(e) ${D.edges_directed[c][0]}→${i0} 800 → H(e) 32`; }
   if (st === 4) { const m = S.mode; return `decode · ${MODES[m]} ${f2(D.pred.freq_hz[m])} Hz (FE ${f2(D.fe.freq_hz[m])}) · MAC ${f3(D.pred.mac[m])}`; }
   const a = inEdges[i0].map((c) => D.alpha[st - 1][S.head][c]).sort((p, q) => q - p);
   return `l = ${st} · node ${i0} · ${k} in-edges · α ${a.map(f2).join(" ")} (head ${S.head + 1})`;

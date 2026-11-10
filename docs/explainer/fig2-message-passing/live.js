@@ -2,7 +2,7 @@
 (() => {
 const M = deckModel(D);
 const C = camera(30, 32);
-const ZR = ZD + 46, ZN = ZD + 30;              // raised receiver block, neighbour blocks
+const ZR = ZD + 52, ZN = ZD + 28;              // raised receiver block, neighbour blocks
 fit(C, [...benchCorners(0), [0, 96.7, ZR + 14], [357, 96.7, ZR + 14], [-26, -88, -16], [386, -88, -16]], W, H, 12);
 
 const svg = document.querySelector(".iso-svg");
@@ -167,8 +167,8 @@ function deckLayer(dz) {
   }
   if (st <= 3) {
     // posts: receiver up to its collector, neighbours up to their blocks (layers only)
-    const posts = [[i0, ZR - 3.5]];
-    if (st >= 1) for (const j of nb) posts.push([j, ZN]);
+    const posts = [[i0, ZR - 9]];
+    if (st >= 1) for (const j of nb) posts.push([j, zN(j)]);
     for (const [j, zTop] of posts) {
       const [x, y] = M.nodes[j], z0 = nodeTop(M, j) + 1.4 + dz[j];
       extra.push({ at: [x, y, z0], bias: 14, svg: cyl(C, x, y, 0.75, z0, zTop - z0, { tone: j === i0 ? "lit" : "mid", lit: j === i0, n: 14 }) });
@@ -178,22 +178,28 @@ function deckLayer(dz) {
 }
 
 // ---------------------------------------------------------------- pin blocks
+// neighbours of the receiver stand at two levels, alternating along x, so close nodes never collide
+function zN(j) {
+  const nb = [...new Set(M.nbr[S.recv])].sort((p, q) => M.nodes[p][0] - M.nodes[q][0] || M.nodes[p][1] - M.nodes[q][1]);
+  return ZN + (nb.indexOf(j) % 2) * 9;
+}
 function pinBlock(cx, cy, z, vals, own) {
   let s = "";
-  const plan = rrect(cx - 7, cy - 12, 14, 24, 1.2);
+  const plan = rrect(cx - 5.4, cy - 10.2, 10.8, 20.4, 1.1);
   s += prism(C, plan, z, 2.5, { tone: own ? "lit" : "mid", lit: own });
-  s += `<path class="iso-line" data-tone="faint" d="${poly2d(rrect(cx - 6, cy - 11, 12, 22, 0.8).map((p) => pr(C, [p[0], p[1], z + 2.5])))}"/>`;
+  s += `<path class="iso-line" data-tone="faint" d="${poly2d(rrect(cx - 4.5, cy - 9.3, 9, 18.6, 0.7).map((p) => pr(C, [p[0], p[1], z + 2.5])))}"/>`;
   const pins = [];
   for (let h = 0; h < 4; h++) for (let k = 0; k < 8; k++) {
-    const px = cx - 3.9 + h * 2.6, py = cy - 8.75 + k * 2.5, v = vals ? vals[h * 8 + k] : 0;
+    const px = cx - 3.3 + h * 2.2, py = cy - 7.7 + k * 2.2, v = vals ? vals[h * 8 + k] : 0;
     const hp = Math.max(0.35, Math.min(11, 4.5 + 1.5 * v));
     const tone = own ? (h === S.head ? "lit" : "hi") : (h === S.head ? "hi" : "mid");
-    pins.push({ at: [px, py, z], svg: cyl(C, px, py, 0.72, z + 2.5, hp, { tone, lit: own && h === S.head, n: 12 }) });
+    pins.push({ at: [px, py, z], svg: cyl(C, px, py, 0.66, z + 2.5, hp, { tone, lit: own && h === S.head, n: 12 }) });
   }
   return s + paint(C, pins);
 }
 function collector(cx, cy) {
-  return cyl(C, cx, cy, 3.2, ZR - 3.5, 3.5, { tone: "hi", n: 28, inner: `<path class="iso-line" data-tone="faint" d="${ringPath(C, cx, cy, 1.6, ZR, 20)}"/>` });
+  return cyl(C, cx, cy, 3.6, ZR - 9, 3.4, { tone: "hi", n: 28, inner: `<path class="iso-line" data-tone="faint" d="${ringPath(C, cx, cy, 2.2, ZR - 5.6, 24)}"/>` }) +
+    cyl(C, cx, cy, 1.4, ZR - 5.6, 5.6, { tone: "hi", n: 16 });
 }
 function blocksSvg() {
   const st = S.stage, i0 = S.recv;
@@ -202,7 +208,7 @@ function blocksSvg() {
   const hRecv = S.pinsFrom && S.pinsTo ? S.pinsTo.map((v, k) => S.pinsFrom[k] + (v - S.pinsFrom[k]) * ease(S.pinsT)) : D.h[Math.max(0, st)][i0];
   if (st >= 1) for (const j of new Set(M.nbr[i0])) {
     const [x, y] = M.nodes[j];
-    items.push({ at: [x, y, ZN], svg: pinBlock(x, y, ZN, D.h[st - 1][j], false) });
+    items.push({ at: [x, y, zN(j)], svg: pinBlock(x, y, zN(j), D.h[st - 1][j], false) });
   }
   const [x, y] = M.nodes[i0];
   items.push({ at: [x, y, ZR + 40], svg: collector(x, y) + pinBlock(x, y, ZR, hRecv, true) });
@@ -210,6 +216,11 @@ function blocksSvg() {
 }
 const ease = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
 
+// the in-edge whose coherency the S(e) screen shows: the one with the most structure (largest spread of Re)
+function shownEdge(i) {
+  const spread = (c) => { const r = D.coh.re[c], m = r.reduce((a, b) => a + b, 0) / r.length; return r.reduce((a, b) => a + (b - m) ** 2, 0); };
+  return inEdges[i].reduce((best, c) => (spread(c) > spread(best) ? c : best), inEdges[i][0]);
+}
 // ---------------------------------------------------------------- front: traces, needles, knob pointer
 function frontSvg() {
   let s = "";
@@ -217,7 +228,7 @@ function frontSvg() {
   const n = psd.length;
   const svPts = psd.map((v, k) => onFace(SV.x0 + (k / (n - 1)) * (SV.x1 - SV.x0), SV.z0 + 0.6 + v * (SV.z1 - SV.z0 - 1.6)));
   s += `<path class="trace" d="M${svPts.map(pt).join("L")}"/>`;
-  const c = inEdges[S.recv][0];
+  const c = shownEdge(S.recv);
   const re = D.coh.re[c], im = D.coh.im[c], m = re.length, mid = (SE.z0 + SE.z1) / 2, amp = (SE.z1 - SE.z0) / 2 - 0.8;
   s += `<path class="trace2" d="M${im.map((v, k) => pt(onFace(SE.x0 + (k / (m - 1)) * (SE.x1 - SE.x0), mid + v * amp))).join("L")}"/>`;
   s += `<path class="trace" d="M${re.map((v, k) => pt(onFace(SE.x0 + (k / (m - 1)) * (SE.x1 - SE.x0), mid + v * amp))).join("L")}"/>`;
@@ -248,7 +259,7 @@ function pulsePaths() {
       const grp = M.members[memberOf.get(i0 + "," + j)].group;
       const off = grp === "cross" || grp === "diagonal" || grp === "edge" ? 0.55 : 0.9, rx = uy * off, ry = -ux * off;
       const zj = nodeTop(M, j), zi = nodeTop(M, i0);
-      const pts = [[xj, yj, ZN], [xj, yj, zj + 1.6], [xj + rx + ux * 2.5, yj + ry + uy * 2.5, zj + 0.4], [xi + rx - ux * 2.5, yi + ry - uy * 2.5, zi + 0.4], [xi, yi, zi + 1.6], [xi, yi, ZR - 3.5]];
+      const pts = [[xj, yj, zN(j)], [xj, yj, zj + 1.6], [xj + rx + ux * 2.5, yj + ry + uy * 2.5, zj + 0.4], [xi + rx - ux * 2.5, yi + ry - uy * 2.5, zi + 0.4], [xi, yi, zi + 1.6], [xi, yi, ZR - 7]];
       paths.push({ pts, r: 0.9 + 2.6 * D.alpha[st - 1][S.head][c] });
     }
   } else if (st === 4) {
@@ -292,7 +303,7 @@ function drawPulses() {
 const f2 = (v) => v.toFixed(2), f3 = (v) => v.toFixed(3);
 function readoutText() {
   const st = S.stage, i0 = S.recv, k = inEdges[i0].length;
-  if (st === 0) return `encode · node ${i0} · S(v) 400 → H(v) 32 · ${k} in-edges S(e) 800 → H(e) 32`;
+  if (st === 0) { const c = shownEdge(i0); return `encode · node ${i0} · S(v) 400 → H(v) 32 · S(e) ${D.edges_directed[c][0]}→${i0} 800 → H(e) 32`; }
   if (st === 4) { const m = S.mode; return `decode · ${MODES[m]} ${f2(D.pred.freq_hz[m])} Hz (FE ${f2(D.fe.freq_hz[m])}) · MAC ${f3(D.pred.mac[m])}`; }
   const a = inEdges[i0].map((c) => D.alpha[st - 1][S.head][c]).sort((p, q) => q - p);
   return `l = ${st} · node ${i0} · ${k} in-edges · α ${a.map(f2).join(" ")} (head ${S.head + 1})`;

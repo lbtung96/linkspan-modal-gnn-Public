@@ -95,8 +95,9 @@ body.iso{background:var(--page);color:var(--text);font:14px/1.55 system-ui,-appl
 .key[data-m="lo"] svg path{stroke:var(--lo)}
 .key b{color:var(--text);font-weight:500;font-family:var(--mono);font-size:12px}
 .caption{color:var(--text)}
+.hat{position:relative;display:inline-block}.hat::after{content:"^";position:absolute;left:.18em;top:-.62em;font-size:.85em}
 .caption code,.key code{font-family:var(--mono);font-size:12px}
-@media (max-width:560px){.plate{padding:46px 6px 74px;overflow:hidden}.plate .iso-svg{width:118%;margin:0 -9%}.corner[data-c="readout"]{bottom:16px;max-width:calc(100% - 40px);white-space:normal}.corner[data-c="hint"]{bottom:48px}}
+@media (max-width:560px){.plate{padding:46px 6px 74px;overflow:hidden}.plate .iso-svg{width:124%;margin:0 -12%}.corner[data-c="readout"]{bottom:16px;max-width:calc(100% - 40px);white-space:normal}.corner[data-c="hint"]{bottom:48px}}
 `;
 
 const keyMark = { lit: "M1 5h14", hi: "M1 5h14", mid: "M1 5h14", lo: "M1 5h14" };

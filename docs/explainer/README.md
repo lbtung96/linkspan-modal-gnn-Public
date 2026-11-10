@@ -6,7 +6,7 @@ Two interactive isometric figures that explain `EdgeGATModalGNN` (the network in
 STATUS (updated at every milestone)
 - [x] M0 data extracted: `data/extract.py` -> `data/deck.json`
 - [x] M1 Fig 2 (message passing) page with encode -> l = 1..3 -> decode loop
-- [ ] M2 Fig 2 verified and polished
+- [x] M2 Fig 2 verified and polished (own capture checks; see Verification)
 - [ ] M3 Fig 1 (feature propagation) working
 - [ ] M4 Fig 1 verified, README finished
 
